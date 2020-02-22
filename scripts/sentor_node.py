@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 from sentor.TopicMonitor import TopicMonitor
+from sentor.SafetyMonitor import SafetyMonitor
 from std_msgs.msg import String
 from std_srvs.srv import Empty
 import pprint
@@ -51,6 +52,8 @@ def event_callback(string, type, msg=""):
         rospy.loginfo(string + '\n' + str(msg))
     elif type == "warn":
         rospy.logwarn(string + '\n' + str(msg))
+    elif type == "error":
+        rospy.logerr(string + '\n' + str(msg))
 
     if event_pub is not None:
         event_pub.publish(String("%s: %s" % (type, string)))
@@ -75,6 +78,10 @@ if __name__ == "__main__":
 
     event_pub = rospy.Publisher('/sentor/event', String, queue_size=10)
 
+    safety_pub_rate = rospy.get_param("~safety_pub_rate", "")    
+    auto_safety_tagging = rospy.get_param("~auto_safety_tagging", "")        
+    safety_monitor = SafetyMonitor(safety_pub_rate, auto_safety_tagging, event_callback)
+
     topic_monitors = []
     print "Monitoring topics:"
     for topic in topics:
@@ -85,19 +92,43 @@ if __name__ == "__main__":
             continue
 
         signal_when = ''
+        safety_critical = False
         signal_lambdas = []
+        processes = []
+        lock_exec = False
+        repeat_exec = False
         timeout = 0
+        lambdas_when_published = False
+        default_notifications = True
+        include = True
         if 'signal_when' in topic.keys():
             signal_when = topic['signal_when']
+        if 'safety_critical' in topic.keys():
+            safety_critical = topic['safety_critical']
         if 'signal_lambdas' in topic.keys():
             signal_lambdas = topic['signal_lambdas']
+        if 'execute' in topic.keys():
+            processes = topic['execute']
+        if 'lock_exec' in topic.keys():
+            lock_exec = topic['lock_exec']
+        if 'repeat_exec' in topic.keys():
+            repeat_exec = topic['repeat_exec']
         if 'timeout' in topic.keys():
             timeout = topic['timeout']
+        if 'lambdas_when_published' in topic.keys():
+            lambdas_when_published = topic['lambdas_when_published']
+        if 'default_notifications' in topic.keys():
+            default_notifications = topic['default_notifications']
+        if 'include' in topic.keys():
+            include = topic['include']
 
-        topic_monitor = TopicMonitor(topic_name, signal_when, signal_lambdas, timeout, event_callback)
-
-        topic_monitors.append(topic_monitor)
-
+        if include:
+            topic_monitor = TopicMonitor(topic_name, signal_when, safety_critical, 
+                                         signal_lambdas, processes, lock_exec, repeat_exec, 
+                                         timeout, lambdas_when_published, default_notifications, event_callback)
+            topic_monitors.append(topic_monitor)
+            safety_monitor.register_monitors(topic_monitor)
+            
     time.sleep(1)
 
     # start monitoring
