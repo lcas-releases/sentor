@@ -1,0 +1,12 @@
+Source: ros-melodic-sentor
+Section: misc
+Priority: optional
+Maintainer: Francesco Del Duchetto <fdelduchetto@lincoln.ac.uk>
+Build-Depends: debhelper (>= 9.0.0), ros-melodic-actionlib, ros-melodic-catkin, ros-melodic-dynamic-reconfigure, ros-melodic-message-generation, ros-melodic-rosgraph, ros-melodic-rospy, ros-melodic-rosservice, ros-melodic-rostopic, ros-melodic-std-msgs, ros-melodic-std-srvs, ros-melodic-tf, ros-melodic-topic-tools
+Homepage: 
+Standards-Version: 3.9.2
+
+Package: ros-melodic-sentor
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, ros-melodic-actionlib, ros-melodic-dynamic-reconfigure, ros-melodic-message-runtime, ros-melodic-rosgraph, ros-melodic-rospy, ros-melodic-rosservice, ros-melodic-rostopic, ros-melodic-std-msgs, ros-melodic-std-srvs, ros-melodic-tf, ros-melodic-topic-tools
+Description: The sentor package, to monitor ROS messages
