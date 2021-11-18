@@ -1,3 +1,26 @@
+## sentor (melodic) - 2.2.0-1
+
+The packages in the `sentor` repository were released into the `melodic` distro by running `/usr/bin/bloom-release -t melodic -r melodic sentor` on `Thu, 18 Nov 2021 11:10:31 -0000`
+
+The `sentor` package was released.
+
+Version of package(s) in repository `sentor`:
+
+- upstream repository: https://github.com/LCAS/sentor.git
+- release repository: https://github.com/lcas-releases/sentor.git
+- rosdistro version: `2.1.0-1`
+- old version: `2.1.0-1`
+- new version: `2.2.0-1`
+
+Versions of tools used:
+
+- bloom version: `0.10.7`
+- catkin_pkg version: `0.4.23`
+- rosdep version: `0.21.0`
+- rosdistro version: `0.8.3`
+- vcstools version: `0.1.42`
+
+
 ## sentor (kinetic) - 2.1.0-1
 
 The packages in the `sentor` repository were released into the `kinetic` distro by running `/usr/bin/bloom-release -y --no-web -t kinetic -r kinetic sentor` on `Mon, 20 Apr 2020 13:44:03 -0000`
