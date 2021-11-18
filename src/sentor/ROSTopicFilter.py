@@ -1,21 +1,30 @@
 #!/usr/bin/env python
 """
 @author: Francesco Del Duchetto (FDelDuchetto@lincoln.ac.uk)
-
+@author: Adam Binch (abinch@sagarobotics.com)
 """
 #####################################################################################
-import rospy, math
-# imported the package `math` so that it can be used in the lambda expressions
+from __future__ import division
+import rospy, math, numpy
+# imported the packages math and numpy so that they can be used in the lambda expressions
 
 class ROSTopicFilter(object):
 
-    def __init__(self, topic_name, lambda_fn_str, config):
+    def __init__(self, topic_name, lambda_fn_str, config, throttle_val):
+        
         self.topic_name = topic_name
         self.lambda_fn_str = lambda_fn_str
         self.config = config
+        self.throttle_val = throttle_val
+        self.throttle = self.throttle_val
+        
         self.lambda_fn = None
         try:
-            self.lambda_fn = eval(self.lambda_fn_str)
+            if config["file"] is not None and config["package"] is not None:
+                exec("from {}.{} import {} as lambda_fn".format(config["package"], config["file"], self.lambda_fn_str))
+                self.lambda_fn = lambda_fn
+            else:
+                self.lambda_fn = eval(self.lambda_fn_str)
         except Exception as e:
             rospy.logerr("Error evaluating lambda function %s : %s" % (self.lambda_fn_str, e))
 
@@ -24,8 +33,10 @@ class ROSTopicFilter(object):
         self.value_read = False
         self.sat_callbacks = []
         self.unsat_callbacks = []
+        
 
     def callback_filter(self, msg):
+        
         if self.lambda_fn is None:
             return
 
@@ -37,7 +48,6 @@ class ROSTopicFilter(object):
         # if the last value was read: set value_read to False
         if self.value_read:
             self.value_read = False
-        # else if filter_satisfied
         elif self.filter_satisfied:
             self.unread_satisfied = True
             # notify the listeners
@@ -48,12 +58,15 @@ class ROSTopicFilter(object):
         else:
             for func in self.unsat_callbacks:
                 func(self.lambda_fn_str)
+                
 
-
-        # if not self.filter_satisfied and not self.value_read:
-        #     self.filter_satisfied = self.lambda_fn(value)
-
-        # print value, self.filter_satisfied, self.value_read
+    def callback_filter_throttled(self, msg):
+        
+        if (self.throttle % self.throttle_val) == 0:
+            self.callback_filter(msg)
+            self.throttle = 1
+        else:
+            self.throttle += 1
 
 
     def is_filter_satisfied(self):
@@ -64,12 +77,12 @@ class ROSTopicFilter(object):
             return True
 
         return self.filter_satisfied
+    
 
     def register_satisfied_cb(self, func):
-
         self.sat_callbacks.append(func)
+        
 
     def register_unsatisfied_cb(self, func):
-
         self.unsat_callbacks.append(func)
 #####################################################################################

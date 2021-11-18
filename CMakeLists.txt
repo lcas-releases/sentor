@@ -13,6 +13,9 @@ add_message_files(
   FILES
   TopicMap.msg
   TopicMapArray.msg
+  SentorEvent.msg
+  Monitor.msg
+  MonitorArray.msg
 )
 
 add_service_files(
@@ -31,6 +34,8 @@ catkin_package(
 
 install(PROGRAMS
   scripts/sentor_node.py
+  scripts/topic_mapping_node.py
+  scripts/test.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
