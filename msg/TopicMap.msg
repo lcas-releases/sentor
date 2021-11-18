@@ -1,10 +1,9 @@
 std_msgs/Header header
+string child_frame_id
 string topic_name
 string topic_arg
 string stat
 float32 resolution
 uint8[] shape
-uint8[] index
-float32[] position
-float32 arg_at_position
+float32[] limits
 float32[] topic_map
